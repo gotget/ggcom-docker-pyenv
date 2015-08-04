@@ -1,4 +1,4 @@
-# GGCOM - Docker - pyenv v201508040404
+# GGCOM - Docker - pyenv v201508041108
 # Louis T. Getterman IV (@LTGIV)
 # www.GotGetLLC.com | www.opensour.cc/ggcom/docker/pyenv
 #
@@ -47,7 +47,7 @@ RUN			curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/
 
 ADD			pycompiler.bash $HOME/pycompiler.bash
 ADD			version $HOME/version
-RUN			bash $HOME/pycompiler.bash $HOME/version
+RUN			bash $HOME/pycompiler.bash $(cat $HOME/version)
 RUN			rm -rf $HOME/pycompiler.bash $HOME/version
 
 RUN			pyenv rehash

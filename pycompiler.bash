@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
+: <<'!COMMENT'
 
-target=$(cat $1 | tr -d '[[:space:]]') \
-rexp='^TARGET\.[0-9][\.0-9]*$' \
+GGCOM - Docker - pyenv v201508041108
+Louis T. Getterman IV (@LTGIV)
+www.GotGetLLC.com | www.opensour.cc/ggcom/docker/pyenv
+
+Example usage of compile+install, and subsequent test of desired version:
+$] pycompiler.bash VERSION
+$] python --version
+
+!COMMENT
+
+target=$(echo "$1" | tr -d '[[:space:]]')
+rexp='^TARGET\.[0-9][\.0-9]*$'
 pylist=$( pyenv install --list )
 
 echo "----------"
