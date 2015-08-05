@@ -36,8 +36,8 @@ RUN			apt-get -y update && apt-get -y install \
 
 RUN			adduser --disabled-password --gecos "" python_user
 
-WORKDIR		/home/python_user
 USER		python_user
+WORKDIR		/home/python_user
 
 ENV			HOME			/home/python_user
 ENV			PYENV_ROOT		$HOME/.pyenv
