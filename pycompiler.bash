@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 : <<'!COMMENT'
 
-GGCOM - Docker - pyenv v201508041108
+GGCOM - Docker - pyenv v201508130219
 Louis T. Getterman IV (@LTGIV)
 www.GotGetLLC.com | www.opensour.cc/ggcom/docker/pyenv
 
@@ -12,6 +12,7 @@ $] python --version
 !COMMENT
 
 target=$(echo "$1" | tr -d '[[:space:]]')
+destination=${2-''}
 rexp='^TARGET\.[0-9][\.0-9]*$'
 pylist=$( pyenv install --list )
 
@@ -43,5 +44,13 @@ echo "Installing Python $pyver, and setting as global Python interpreter:"
 
 pyenv install $pyver
 pyenv global $pyver
+pip install --upgrade pip
 
+if [ ! -z "$destination" ]; then
+	pyenv virtualenv "$pyver" "$destination"
+	pyenv global "$destination"
+	pip install --upgrade pip
+fi
 unset pyver
+
+pyenv rehash
