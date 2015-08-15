@@ -1,4 +1,4 @@
-# GGCOM - Docker - pyenv v201508041108
+# GGCOM - Docker - pyenv v201508140234
 # Louis T. Getterman IV (@LTGIV)
 # www.GotGetLLC.com | www.opensour.cc/ggcom/docker/pyenv
 #
@@ -17,11 +17,12 @@
 # https://gist.github.com/jprjr/7667947
 #
 ################################################################################
-FROM		ubuntu:14.04.2
+FROM		ubuntu:latest
 MAINTAINER	GotGet, LLC <contact+docker@gotgetllc.com>
 
+# Initial prerequisites for installing pyenv
+USER		root
 ENV			DEBIAN_FRONTEND	noninteractive
-
 RUN			apt-get -y update && apt-get -y install \
 				apt-transport-https \
 				curl \
@@ -34,25 +35,50 @@ RUN			apt-get -y update && apt-get -y install \
 				make \
 				zlib1g-dev
 
+# Create a user and reciprocal environment variables
 RUN			adduser --disabled-password --gecos "" python_user
-
 USER		python_user
-WORKDIR		/home/python_user
 
+# Set environment variables
 ENV			HOME			/home/python_user
 ENV			PYENV_ROOT		$HOME/.pyenv
 ENV			PATH			$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
+# Install pyenv
+WORKDIR		$HOME
 RUN			curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
 
-ADD			pycompiler.bash $HOME/pycompiler.bash
-ADD			version $HOME/version
-RUN			bash $HOME/pycompiler.bash $(cat $HOME/version)
-RUN			rm -rf $HOME/pycompiler.bash $HOME/version
+# Create source directory to work out of
+RUN			mkdir -pv $HOME/src/
 
-RUN			pyenv rehash
+ADD			pycompiler.bash $HOME/src/pycompiler.bash
+ADD			version $HOME/src/version
+RUN			bash $HOME/src/pycompiler.bash $(cat $HOME/src/version)
+################################################################################
+USER		root
 
-RUN			pip install --upgrade pip
+# Clean-up after ourselves
+RUN			apt-get -y purge \
+				build-essential \
+				gcc \
+				git \
+				make \
+				pkg-config
+RUN			apt-get -y autoremove
 
-ENTRYPOINT ["python"]
+# Delete specific targets
+RUN			rm -rf $HOME/src/ $HOME/.cache/pip/ /tmp/*
+
+# Delete all Git directories
+RUN			find / -type d -name .git -print0 | xargs -0 rm -rf
+
+# Delete all Python byte code
+#RUN			find / -type f -name *.pyc -print0 | xargs -0 rm -rf # Holding off on this, for now.
+
+# Return to home
+WORKDIR		$HOME
+################################################################################
+ADD			init.bash /root/init.bash
+RUN			chmod 750 /root/init.bash
+ENTRYPOINT	[ "/bin/bash", "/root/init.bash" ]
 ################################################################################
